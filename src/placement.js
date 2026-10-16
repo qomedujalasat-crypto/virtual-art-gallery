@@ -39,6 +39,11 @@ module.exports = (regl, {placements, getAreaIndex}) => {
         let globalScale = 4.5 / (3 + p.aspect); //tweaked to look good
         globalScale = Math.min(globalScale, segLen / p.aspect / 2.2); //clamp horizontal
         globalScale = Math.min(globalScale, 2 / 1.2); //clamp vertical
+        // The first local image (images/1.jpg) is the exhibition banner.
+        // Give it a little more height than the other paintings.
+        if (p.file === '1.jpg') {
+            globalScale = Math.min(1.95, segLen / p.aspect / 2.2);
+        }
         const pos = [(seg[0][0] + seg[1][0]) / 2, 2.1 - globalScale, (seg[0][1] + seg[1][1]) / 2];
         const angle = Math.atan2(dir[1], dir[0]);
         const horiz = Math.abs(angle % 3) < 1 ? 1 : 0;
