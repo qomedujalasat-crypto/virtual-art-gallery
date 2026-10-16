@@ -65,7 +65,7 @@ module.exports = function ({getGridSegments, getGridParts}, fovY) {
 	var mouse = [0, Math.PI * 3 / 4];
 	var fmouse = [0, Math.PI * 3 / 4];
 	var dir = [0, 0, 0];
-	var pos = [2, height, 2];
+	var pos = [8, height, 8];
 	var forward = [0.707, 0, 0.707], up = [0, 1, 0];
 	var force = [0, 0, 0];
 	var walkTime = 0.5;
