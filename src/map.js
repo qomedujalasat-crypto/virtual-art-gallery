@@ -1,7 +1,7 @@
 'use strict';
 
-const mapSize = 3; // Log2 of the grid size; compact open gallery sized for about 50 works
-const cellSize = 14; // Wall spacing; 112 x 112 hall with about 56 perimeter display positions
+const mapSize = 3; // Compact maze-like gallery with multiple rooms
+const cellSize = 8; // Room spacing; total gallery footprint is 64 x 64
 const mapHeight = 7; // Height of the walls
 const wallThickness = 0.25; // Wall thickness
 const wallRemoval = 0.5; // Random wall removal proportion
@@ -208,11 +208,10 @@ function genGrid(segments, n, r) {
         (Math.round((place[0][1] + place[1][1]) / 2 / r + 0.5) - 0.5) * r
 	]);
 	const getAreaIndex = (x, y) => {
-		let index = areas.findIndex(a => Math.abs(a[0] - x) < r / 2 && Math.abs(a[1] - y) < r / 2);
-		if (index === -1)
-			index = areas.findIndex(a => Math.abs(a[0] - x) + Math.abs(a[1] - y) < r);
-		// In the open hall, the visitor can be far from every wall.
-		// Associate the visitor with the nearest perimeter artwork so loading continues.
+		let index = areas.findIndex(a => Math.abs(a[0] - x) < r / 2 && Math.abs(a[1] - y) < r / 2)
+		if (index === -1) // Middle of room => search neighbour cells
+			index = areas.findIndex(a => Math.abs(a[0] - x) + Math.abs(a[1] - y) < r)
+		// Keep artwork loading progressing even when the visitor is between walls.
 		if (index === -1 && areas.length) {
 			let nearestDistance = Infinity;
 			for (let i = 0; i < areas.length; i++) {
@@ -231,24 +230,9 @@ function genGrid(segments, n, r) {
 
 module.exports = function (n = mapSize, r = cellSize, w = wallThickness, m = wallRemoval, h = mapHeight) {
 	let s = r * Math.pow(2, n);
-	// Two nested square galleries: artworks face inward on the outer wall
-	// and outward from the inner wall. A centered doorway connects the halls.
-	const innerMin = s * 0.25;
-	const innerMax = s * 0.75;
-	const doorHalfWidth = r * 0.55;
-	const mid = s / 2;
-	const outerBorder = [[0, 0], [s, 0], [s, s], [0, s], [0, 0]];
-	// Counter-clockwise inner wall normals face into the surrounding gallery.
-	const innerSegments = [
-		[[innerMin, innerMin], [innerMin, innerMax]],
-		[[innerMin, innerMax], [innerMax, innerMax]],
-		[[innerMax, innerMax], [innerMax, innerMin]],
-		[[innerMax, innerMin], [mid + doorHalfWidth, innerMin]],
-		[[mid - doorHalfWidth, innerMin], [innerMin, innerMin]]
-	];
+	let border = genBorder(n + 1, w, m).map((v) => [v[0] * s, v[1] * s]);
 	console.time('gen mesh');
-	let segments = outerBorder.slice(0, -1).map((p, i) => [p, outerBorder[i + 1]])
-		.concat(innerSegments);
+	let segments = border.slice(0, -1).map((p, i) => [p, border[i + 1]]);
 	let normal = segments
 		.map(([[x1, y1], [x2, y2]]) => [Math.sign(y1 - y2), 0, Math.sign(x2 - x1)])
 		.flatMap((v) => Array(4).fill(v));
