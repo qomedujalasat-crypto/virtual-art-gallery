@@ -56,10 +56,16 @@ function genBorder(n, w, m) {
 			nodes.splice(r + 1, 2);
 		}
 	};
-	// Remove random walls
+	// Deterministic pseudo-random sequence: every visitor gets the same gallery layout.
+	let randomSeed = 123456789;
+	const seededRandom = () => {
+		randomSeed = (1664525 * randomSeed + 1013904223) % 4294967296;
+		return randomSeed / 4294967296;
+	};
+	// Remove the same walls in the same order on every load.
 	console.time('rnd wall');
 	for (let i = 0; i < m; i++) {
-		let r = Math.floor(Math.random() * (nodes.length - 3));
+		let r = Math.floor(seededRandom() * (nodes.length - 3));
 		while (nodes[r + 1].s !== -1 || nodes[r + 2].s !== -1) r = (r + 1) % (nodes.length - 3);
 		removeWall(r);
 	}
