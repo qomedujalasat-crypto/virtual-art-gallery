@@ -8,7 +8,8 @@ const maxWidth = textCanvas.width = textCanvas.height = 1024;
 const ctx = textCanvas.getContext('2d');
 ctx.mozImageSmoothingEnabled = false;
 ctx.webkitImageSmoothingEnabled = false;
-ctx.font = textHeight + "px Verdana";
+ctx.font = textHeight + 'px "Noto Nastaliq Urdu", Tahoma, sans-serif';
+ctx.textAlign = "center";
 ctx.textBaseline = "bottom";
 ctx.fillStyle = "#aaa";
 
@@ -60,7 +61,7 @@ module.exports = {
 
         ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
         for (var i = 0; i < text.length; i++) {
-            ctx.fillText(text[i], 0, textCanvas.height - (Math.max(text.length, 3) - i) * textHeight);
+            ctx.fillText(text[i], textCanvas.width / 2, textCanvas.height - (Math.max(text.length, 3) - i) * textHeight);
         }
 
         return texture({
