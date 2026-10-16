@@ -22,23 +22,34 @@ module.exports = (regl, data, useReflexion) => {
         uniform sampler2D wallTexture;
         uniform sampler2D floorTexture;
 
-        vec3 hue2rgb(float h) {
-            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-            vec3 p = abs(fract(vec3(h) + K.xyz) * 6.0 - K.www);
-            return mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), 0.08);
-        }
-
         void main() {
-            vec3 totalLight = texture2D(wallTexture, vec2(v_pos.x + v_pos.z, 7.0-v_pos.y)/8.0).rgb;
             float dist = length(v_relativepos);
-            totalLight = mix(totalLight, vec3(90.0,92.0,95.0)/255.0, step(6.99, v_pos.y));
-            totalLight *= mix(0.7, 1.0, smoothstep(0.1, 0.12, v_pos.y));
-            totalLight *= abs(v_normal.x)/64.0 + 1.0;
-            if(v_normal.y > 0.0) {
-                totalLight = 0.47+0.1*texture2D(floorTexture, v_pos.xz / 8.0).rgb;
+            vec3 totalLight;
+
+            // White, simple ceiling.
+            if (v_pos.y > 6.99) {
+                totalLight = vec3(0.96, 0.96, 0.94);
+            } else if (v_normal.y > 0.0) {
+                // Bright marble-like floor: a pale stone base with subtle veins.
+                vec3 stone = vec3(0.91, 0.89, 0.84);
+                vec3 textureColor = texture2D(floorTexture, v_pos.xz / 8.0).rgb;
+                totalLight = mix(stone, textureColor, 0.12);
+                float pattern = sin((v_pos.x + v_pos.z * 0.65) * 2.4
+                    + sin(v_pos.x * 0.7 + v_pos.z * 0.3) * 2.0);
+                float vein = pow(1.0 - abs(pattern), 18.0);
+                totalLight = mix(totalLight, vec3(0.67, 0.65, 0.61), vein * 0.18);
+            } else {
+                // Warm beige walls; retain a little of the original wall texture.
+                vec3 textureColor = texture2D(
+                    wallTexture,
+                    vec2(v_pos.x + v_pos.z, 7.0 - v_pos.y) / 8.0
+                ).rgb;
+                totalLight = mix(textureColor, vec3(0.78, 0.70, 0.57), 0.72);
+                totalLight *= mix(0.86, 1.0, smoothstep(0.1, 0.12, v_pos.y));
+                totalLight *= abs(v_normal.x) / 64.0 + 1.0;
             }
-            totalLight *= (0.5 + 0.5*hue2rgb(0.5 + (v_pos.x + v_pos.z) / 160.0)); //color variation
-            float alpha = .98+smoothstep(150.,0.,dist)-v_normal.y; // reflexion
+
+            float alpha = .98 + smoothstep(150., 0., dist) - v_normal.y;
             gl_FragColor = vec4(totalLight, ${useReflexion ? "alpha" : "1.0"});
         }`,
 
