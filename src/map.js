@@ -1,6 +1,6 @@
 'use strict';
 
-const mapSize = 6; // Log2 of the grid size (keep the value between [1, 6])
+const mapSize = 4; // Log2 of the grid size; one open 128 x 128 gallery hall
 const cellSize = 8; // Size of the rooms
 const mapHeight = 7; // Height of the walls
 const wallThickness = 0.25; // Wall thickness
@@ -208,9 +208,21 @@ function genGrid(segments, n, r) {
         (Math.round((place[0][1] + place[1][1]) / 2 / r + 0.5) - 0.5) * r
 	]);
 	const getAreaIndex = (x, y) => {
-		let index = areas.findIndex(a => Math.abs(a[0] - x) < r / 2 && Math.abs(a[1] - y) < r / 2)
-		if (index === -1) // Middle of room => search neighbour cells
-			index = areas.findIndex(a => Math.abs(a[0] - x) + Math.abs(a[1] - y) < r)
+		let index = areas.findIndex(a => Math.abs(a[0] - x) < r / 2 && Math.abs(a[1] - y) < r / 2);
+		if (index === -1)
+			index = areas.findIndex(a => Math.abs(a[0] - x) + Math.abs(a[1] - y) < r);
+		// In the open hall, the visitor can be far from every wall.
+		// Associate the visitor with the nearest perimeter artwork so loading continues.
+		if (index === -1 && areas.length) {
+			let nearestDistance = Infinity;
+			for (let i = 0; i < areas.length; i++) {
+				const distance = Math.hypot(areas[i][0] - x, areas[i][1] - y);
+				if (distance < nearestDistance) {
+					nearestDistance = distance;
+					index = i;
+				}
+			}
+		}
 		return index;
 	};
 	console.timeEnd('gen grid');
@@ -219,7 +231,9 @@ function genGrid(segments, n, r) {
 
 module.exports = function (n = mapSize, r = cellSize, w = wallThickness, m = wallRemoval, h = mapHeight) {
 	let s = r * Math.pow(2, n);
-	let border = genBorder(n + 1, w, m).map((v) => [v[0] * s, v[1] * s]);
+	// A single open square gallery instead of the generated maze.
+	// The clockwise perimeter gives inward-facing wall normals.
+	let border = [[0, 0], [s, 0], [s, s], [0, s], [0, 0]];
 	console.time('gen mesh');
 	let segments = border.slice(0, -1).map((p, i) => [p, border[i + 1]]);
 	let normal = segments
