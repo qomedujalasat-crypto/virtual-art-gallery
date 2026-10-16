@@ -80,7 +80,9 @@ module.exports = function ({getGridSegments, getGridParts, placements}, fovY) {
 		startX = midX + nx * 3.5;
 		startZ = midZ + nz * 3.5;
 		// In this camera's view-matrix convention, yaw is atan2(targetX - cameraX, cameraZ - targetZ).
-		startYaw = Math.atan2(midX - startX, startZ - midZ);
+		// The painting's visible face is opposite the wall normal used for placement.
+		// Keep the starting position, but turn the camera 180 degrees toward the painting.
+		startYaw = Math.atan2(midX - startX, startZ - midZ) + Math.PI;
 	}
 	var mouse = [0, startYaw];
 	var fmouse = [0, startYaw];
