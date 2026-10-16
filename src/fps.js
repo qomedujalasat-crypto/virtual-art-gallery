@@ -79,7 +79,8 @@ module.exports = function ({getGridSegments, getGridParts, placements}, fovY) {
 		}
 		startX = midX + nx * 3.5;
 		startZ = midZ + nz * 3.5;
-		startYaw = Math.atan2(-(midX - startX), -(midZ - startZ));
+		// In this camera's view-matrix convention, yaw is atan2(targetX - cameraX, cameraZ - targetZ).
+		startYaw = Math.atan2(midX - startX, startZ - midZ);
 	}
 	var mouse = [0, startYaw];
 	var fmouse = [0, startYaw];
