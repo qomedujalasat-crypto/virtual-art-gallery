@@ -26,27 +26,24 @@ module.exports = (regl, data, useReflexion) => {
             float dist = length(v_relativepos);
             vec3 totalLight;
 
-            // White, simple ceiling.
-            if (v_pos.y > 6.99) {
-                totalLight = vec3(0.96, 0.96, 0.94);
-            } else if (v_normal.y > 0.0) {
-                // Bright marble-like floor: a pale stone base with subtle veins.
-                vec3 stone = vec3(0.91, 0.89, 0.84);
+            // Classify horizontal surfaces by their normals, not their height.
+            if (v_normal.y < -0.5) {
+                // Plain white ceiling.
+                totalLight = vec3(0.97, 0.97, 0.96);
+            } else if (v_normal.y > 0.5) {
+                // Light marble floor with subtle, low-contrast veins.
+                vec3 stone = vec3(0.92, 0.90, 0.86);
                 vec3 textureColor = texture2D(floorTexture, v_pos.xz / 8.0).rgb;
-                totalLight = mix(stone, textureColor, 0.12);
+                totalLight = mix(stone, textureColor, 0.06);
                 float pattern = sin((v_pos.x + v_pos.z * 0.65) * 2.4
                     + sin(v_pos.x * 0.7 + v_pos.z * 0.3) * 2.0);
                 float vein = pow(1.0 - abs(pattern), 18.0);
-                totalLight = mix(totalLight, vec3(0.67, 0.65, 0.61), vein * 0.18);
+                totalLight = mix(totalLight, vec3(0.68, 0.66, 0.62), vein * 0.14);
             } else {
-                // Warm beige walls; retain a little of the original wall texture.
-                vec3 textureColor = texture2D(
-                    wallTexture,
-                    vec2(v_pos.x + v_pos.z, 7.0 - v_pos.y) / 8.0
-                ).rgb;
-                totalLight = mix(textureColor, vec3(0.78, 0.70, 0.57), 0.72);
-                totalLight *= mix(0.86, 1.0, smoothstep(0.1, 0.12, v_pos.y));
-                totalLight *= abs(v_normal.x) / 64.0 + 1.0;
+                // Solid warm beige wall color; deliberately avoid the dark wall texture.
+                totalLight = vec3(0.82, 0.75, 0.64);
+                float softLight = mix(0.94, 1.0, smoothstep(0.1, 0.12, v_pos.y));
+                totalLight *= softLight;
             }
 
             float alpha = .98 + smoothstep(150., 0., dist) - v_normal.y;
