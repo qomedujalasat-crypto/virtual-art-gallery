@@ -40,7 +40,7 @@ async function loadImage(regl, p, res) {
 	let image, title;
 	try {
 		const data = await dataAccess.fetchImage(p, dynamicQual(res));
-		title = data.title;
+		title = 'دومین جشنواره کشوری طراحی و دوخت لباس دانش‌آموزی';
 		// Resize image to a power of 2 to use mipmap (faster than createImageBitmap resizing)
 		image = await createImageBitmap(data.image);
 		ctx.drawImage(image, 0, 0, resizeCanvas.width, resizeCanvas.height);
