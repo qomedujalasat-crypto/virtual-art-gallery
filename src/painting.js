@@ -98,5 +98,11 @@ module.exports = (regl) => {
 	return function (batch) {
 		painting(batch);
 		drawText(batch);
+		// Render the festival inscription above each painting, while preserving its title below.
+		drawText(batch.map(item => ({
+			...item,
+			text: item.festivalTexture,
+			textmodel: item.festivalModel
+		})));
 	}
 };
