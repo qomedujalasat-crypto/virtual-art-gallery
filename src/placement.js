@@ -31,7 +31,9 @@ module.exports = (regl, {placements, getAreaIndex}) => {
     let batch = [], shownBatch = [];
     let fetching = true;
     const loadPainting = (p) => {
-        const seg = placements[batch.length];
+        // Keep each image attached to its intended wall even when image downloads finish out of order.
+        const placementIndex = Number.isInteger(p.image_id) ? p.image_id : batch.length;
+        const seg = placements[placementIndex];
         // Calculate painting position, direction, normal angle and scale
         const dir = [seg[1][0] - seg[0][0], seg[1][1] - seg[0][1]];
         const norm = [seg[1][1] - seg[0][1], seg[0][0] - seg[1][0]];
@@ -74,7 +76,7 @@ module.exports = (regl, {placements, getAreaIndex}) => {
         mat4.fromTranslation(textmodel, [pos[0], 1.7 - globalScale, pos[2]]);
         mat4.scale(textmodel, textmodel, [2,2,2]);
         mat4.rotateY(textmodel, textmodel, -angle);
-        batch.push({ ...p, vseg, angle, model, textmodel, text, width, textGen:null });
+        batch[placementIndex] = { ...p, vseg, angle, model, textmodel, text, width, textGen:null };
     };
     // Fetch the first textures
     texture.fetch(regl, 20, dynamicRes, loadPainting, () => fetching = false);
@@ -87,7 +89,7 @@ module.exports = (regl, {placements, getAreaIndex}) => {
             batch.slice(0, Math.max(0, index - unloadDist)).map(t => texture.unload(t));
             batch.slice(index + unloadDist).map(t => texture.unload(t));
             // Load close textures
-            shownBatch = batch.slice(Math.max(0, index - renderDist), index + renderDist);
+            shownBatch = batch.slice(Math.max(0, index - renderDist), index + renderDist).filter(Boolean);
             shownBatch.map(t => texture.load(regl, t, dynamicRes));
             // Frustum / Orientation culling
             shownBatch = shownBatch.filter(t => t.tex && culling(pos, angle, fovX, t));
