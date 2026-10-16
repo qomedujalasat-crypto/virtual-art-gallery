@@ -10,6 +10,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
       html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+      #exhibition-entry {
+        position: fixed; inset: 0; z-index: 100; display: flex;
+        flex-direction: column; align-items: center; justify-content: center;
+        gap: 22px; padding: 20px; box-sizing: border-box;
+        background: #211a15;
+      }
+      #exhibition-entry img {
+        display: block; max-width: 100%; max-height: calc(100vh - 110px);
+        width: auto; height: auto; object-fit: contain;
+      }
+      #enter-gallery {
+        border: 1px solid #d8bd8b; border-radius: 8px; padding: 12px 30px;
+        color: #fff8e9; background: #6b4b2b; font: 18px Tahoma, Arial, sans-serif;
+        cursor: pointer;
+      }
+      #enter-gallery:focus-visible { outline: 3px solid #fff8e9; outline-offset: 3px; }
       .gallery-caption {
         position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
         padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
@@ -22,7 +38,16 @@
     </style>
   </head>
   <body>
+    <div id="exhibition-entry" role="dialog" aria-label="ورود به نمایشگاه">
+      <img src="images/1.jpg" alt="بنر اصلی نمایشگاه">
+      <button id="enter-gallery" type="button">ورود به نمایشگاه</button>
+    </div>
     <div class="gallery-caption">دومین جشنواره کشوری طراحی و دوخت لباس دانش‌آموزی</div>
+    <script>
+      document.getElementById('enter-gallery').addEventListener('click', function () {
+        document.getElementById('exhibition-entry').remove();
+      });
+    </script>
     <script inline-htmlify></script>
   </body>
 </html>
