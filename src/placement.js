@@ -28,7 +28,7 @@ const culling = (ppos, pangle, fovx, {vseg, angle}) => {
 };
 
 module.exports = (regl, {placements, getAreaIndex}) => {
-    const festivalTexture = textUtil.init(regl.texture(), 'دومین جشنواره کشوری طراحی و دوخت لباس دانش‌آموزی', 4.0);
+    const festivalTexture = textUtil.init(regl.texture(), 'دومین جشنواره کشوری طراحی و دوخت لباس دانش‌آموزی', 1.0, { fontFamily: '"Noto Nastaliq Urdu", Tahoma, serif', fontSize: 52, canvasHeight: 256, fillStyle: '#5b4029', lineSpacing: 1.25 });
     let batch = [], shownBatch = [];
     let fetching = true;
     const loadPainting = (p) => {
