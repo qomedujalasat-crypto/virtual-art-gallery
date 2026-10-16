@@ -71,17 +71,14 @@ module.exports = function ({getGridSegments, getGridParts, placements}, fovY) {
 		const midX = (a[0] + b[0]) / 2;
 		const midZ = (a[1] + b[1]) / 2;
 		const dx = b[0] - a[0], dz = b[1] - a[1];
-		let nx = dz, nz = -dx;
+		// The painting is offset to the negative side of this segment normal in placement.js.
+		const nx = dz, nz = -dx;
 		const normalLen = Math.hypot(nx, nz) || 1;
-		nx /= normalLen; nz /= normalLen;
-		// Choose the side facing into the gallery.
-		if (nx * (32 - midX) + nz * (32 - midZ) < 0) {
-			nx = -nx; nz = -nz;
-		}
-		startX = midX + nx * 3.5;
-		startZ = midZ + nz * 3.5;
-		// Match this view matrix's yaw convention and face the painting.
-		startYaw = Math.atan2(midX - startX, startZ - midZ) + Math.PI;
+		startX = midX - (nx / normalLen) * 3.5;
+		startZ = midZ - (nz / normalLen) * 3.5;
+		// View-matrix yaw: atan2(targetX - cameraX, cameraZ - targetZ).
+		// Do not add PI; that turns the camera away from the painting.
+		startYaw = Math.atan2(midX - startX, startZ - midZ);
 	}
 	var mouse = [0, startYaw];
 	var fmouse = [0, startYaw];
