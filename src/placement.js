@@ -1,5 +1,6 @@
 'use strict';
 const texture = require('./image');
+const textUtil = require('./text');
 const mat4 = require('gl-mat4');
 
 const renderDist = 20;
@@ -27,7 +28,7 @@ const culling = (ppos, pangle, fovx, {vseg, angle}) => {
 };
 
 module.exports = (regl, {placements, getAreaIndex}) => {
-    //console.log(areas);
+    const festivalTexture = textUtil.init(regl.texture(), 'دومین جشنواره کشوری طراحی و دوخت لباس دانش‌آموزی', 4.0);
     let batch = [], shownBatch = [];
     let fetching = true;
     const loadPainting = (p) => {
@@ -68,7 +69,18 @@ module.exports = (regl, {placements, getAreaIndex}) => {
         mat4.fromTranslation(textmodel, [pos[0], 1.7 - globalScale, pos[2]]);
         mat4.scale(textmodel, textmodel, [2,2,2]);
         mat4.rotateY(textmodel, textmodel, -angle);
-        batch.push({ ...p, vseg, angle, model, textmodel, text, width, textGen:null });
+
+        // A small festival inscription directly above every artwork.
+        const festivalModel = [];
+        mat4.fromTranslation(festivalModel, [
+            (seg[0][0] + seg[1][0]) / 2,
+            2.2 + globalScale,
+            (seg[0][1] + seg[1][1]) / 2
+        ]);
+        const signWidth = Math.min(segLen * 0.82, 5.5);
+        mat4.scale(festivalModel, festivalModel, [signWidth, 0.42, signWidth]);
+        mat4.rotateY(festivalModel, festivalModel, -angle);
+        batch.push({ ...p, vseg, angle, model, textmodel, text, width, festivalTexture, festivalModel, textGen:null });
     };
     // Fetch the first textures
     texture.fetch(regl, 20, dynamicRes, loadPainting, () => fetching = false);
