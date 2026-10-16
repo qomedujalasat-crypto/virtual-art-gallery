@@ -62,31 +62,12 @@ const easeInOutQuad = x =>
 	x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 
 module.exports = function ({getGridSegments, getGridParts, placements}, fovY) {
-	// Start directly in front of the first wall painting (images/1.jpg).
-	// Choose the normal pointing toward the middle of the gallery.
-	const firstWall = placements && placements[0];
-	let startX = 18, startZ = 18, startYaw = Math.PI * 3 / 4;
-	if (firstWall) {
-		const [a, b] = firstWall;
-		const midX = (a[0] + b[0]) / 2;
-		const midZ = (a[1] + b[1]) / 2;
-		const dx = b[0] - a[0], dz = b[1] - a[1];
-		let nx = dz, nz = -dx;
-		const normalLen = Math.hypot(nx, nz) || 1;
-		nx /= normalLen; nz /= normalLen;
-		if (nx * (32 - midX) + nz * (32 - midZ) < 0) {
-			nx = -nx; nz = -nz;
-		}
-		startX = midX + nx * 3.5;
-		startZ = midZ + nz * 3.5;
-		// Face the camera directly at the center of the first painting.
-		// The camera's forward direction in world space is [cos(yaw), 0, sin(yaw)].
-		startYaw = Math.atan2(midZ - startZ, midX - startX);
-	}
-	var mouse = [0, startYaw];
-	var fmouse = [0, startYaw];
+	// Keep the original, known-good camera start position and orientation.
+	// Camera placement is independent of the gallery's wall styling.
+	var mouse = [0, Math.PI * 3 / 4];
+	var fmouse = [0, Math.PI * 3 / 4];
 	var dir = [0, 0, 0];
-	var pos = [startX, height, startZ];
+	var pos = [18, height, 18];
 	var forward = [0.707, 0, 0.707], up = [0, 1, 0];
 	var force = [0, 0, 0];
 	var walkTime = 0.5;
