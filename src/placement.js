@@ -28,7 +28,7 @@ const culling = (ppos, pangle, fovx, {vseg, angle}) => {
 };
 
 module.exports = (regl, {placements, getAreaIndex}) => {
-    const festivalTexture = textUtil.init(regl.texture(), 'دومین جشنواره کشوری طراحی و دوخت لباس دانش‌آموزی', 1.0, { fontFamily: '"Noto Nastaliq Urdu", Tahoma, serif', fontSize: 52, canvasHeight: 256, fillStyle: '#5b4029', lineSpacing: 1.25 });
+    const festivalTexture = textUtil.init(regl.texture(), 'دومین جشنواره کشوری طراحی و دوخت لباس دانش‌آموزی', 1.0, { fontFamily: '"Noto Nastaliq Urdu", Tahoma, serif', fontSize: 52, canvasHeight: 192, fillStyle: '#5b4029', lineSpacing: 1.25 });
     let batch = [], shownBatch = [];
     let fetching = true;
     const loadPainting = (p) => {
@@ -78,7 +78,7 @@ module.exports = (regl, {placements, getAreaIndex}) => {
             (seg[0][1] + seg[1][1]) / 2
         ]);
         const signWidth = Math.min(segLen * 0.82, 5.5);
-        mat4.scale(festivalModel, festivalModel, [signWidth, 0.42, signWidth]);
+        mat4.scale(festivalModel, festivalModel, [signWidth, signWidth * 192 / 1024, signWidth]);
         mat4.rotateY(festivalModel, festivalModel, -angle);
         batch.push({ ...p, vseg, angle, model, textmodel, text, width, festivalTexture, festivalModel, textGen:null });
     };
