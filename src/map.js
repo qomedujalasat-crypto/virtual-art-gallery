@@ -231,11 +231,24 @@ function genGrid(segments, n, r) {
 
 module.exports = function (n = mapSize, r = cellSize, w = wallThickness, m = wallRemoval, h = mapHeight) {
 	let s = r * Math.pow(2, n);
-	// A single open square gallery instead of the generated maze.
-	// The clockwise perimeter gives inward-facing wall normals.
-	let border = [[0, 0], [s, 0], [s, s], [0, s], [0, 0]];
+	// Two nested square galleries: artworks face inward on the outer wall
+	// and outward from the inner wall. A centered doorway connects the halls.
+	const innerMin = s * 0.25;
+	const innerMax = s * 0.75;
+	const doorHalfWidth = r * 0.55;
+	const mid = s / 2;
+	const outerBorder = [[0, 0], [s, 0], [s, s], [0, s], [0, 0]];
+	// Counter-clockwise inner wall normals face into the surrounding gallery.
+	const innerSegments = [
+		[[innerMin, innerMin], [innerMin, innerMax]],
+		[[innerMin, innerMax], [innerMax, innerMax]],
+		[[innerMax, innerMax], [innerMax, innerMin]],
+		[[innerMax, innerMin], [mid + doorHalfWidth, innerMin]],
+		[[mid - doorHalfWidth, innerMin], [innerMin, innerMin]]
+	];
 	console.time('gen mesh');
-	let segments = border.slice(0, -1).map((p, i) => [p, border[i + 1]]);
+	let segments = outerBorder.slice(0, -1).map((p, i) => [p, outerBorder[i + 1]])
+		.concat(innerSegments);
 	let normal = segments
 		.map(([[x1, y1], [x2, y2]]) => [Math.sign(y1 - y2), 0, Math.sign(x2 - x1)])
 		.flatMap((v) => Array(4).fill(v));
