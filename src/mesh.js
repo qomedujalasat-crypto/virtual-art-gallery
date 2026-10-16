@@ -26,12 +26,11 @@ module.exports = (regl, data, useReflexion) => {
             float dist = length(v_relativepos);
             vec3 totalLight;
 
-            // Classify horizontal surfaces by their normals, not their height.
+            // Keep the ceiling plain white.
             if (v_normal.y < -0.5) {
-                // Plain white ceiling.
                 totalLight = vec3(0.97, 0.97, 0.96);
             } else if (v_normal.y > 0.5) {
-                // Light marble floor with subtle, low-contrast veins.
+                // Preserve the light marble floor and its restrained veins.
                 vec3 stone = vec3(0.92, 0.90, 0.86);
                 vec3 textureColor = texture2D(floorTexture, v_pos.xz / 8.0).rgb;
                 totalLight = mix(stone, textureColor, 0.06);
@@ -40,10 +39,26 @@ module.exports = (regl, data, useReflexion) => {
                 float vein = pow(1.0 - abs(pattern), 18.0);
                 totalLight = mix(totalLight, vec3(0.68, 0.66, 0.62), vein * 0.14);
             } else {
-                // Solid warm beige wall color; deliberately avoid the dark wall texture.
-                totalLight = vec3(0.82, 0.75, 0.64);
-                float softLight = mix(0.94, 1.0, smoothstep(0.1, 0.12, v_pos.y));
-                totalLight *= softLight;
+                // Warm ivory plaster with a quiet Persian-inspired geometric ornament.
+                totalLight = vec3(0.88, 0.82, 0.72);
+
+                // Repeating diamond lattice and small rosette-like crossings.
+                // The muted sand-gold lines are intentionally low contrast.
+                vec2 uv = vec2(v_pos.x + v_pos.z, v_pos.y) * 1.35;
+                vec2 cell = abs(fract(uv) - 0.5);
+                float diamondLine = abs(cell.x + cell.y - 0.36);
+                float diagonalLine = abs(cell.x - cell.y);
+                float diamond = 1.0 - smoothstep(0.012, 0.035, diamondLine);
+                float crossing = 1.0 - smoothstep(0.018, 0.045, diagonalLine);
+                float centerX = 1.0 - smoothstep(0.055, 0.09, length(cell - vec2(0.5, 0.5)));
+                float ornament = max(diamond, crossing * 0.20);
+                ornament = max(ornament, centerX * 0.12);
+
+                vec3 ornamentColor = vec3(0.69, 0.57, 0.42);
+                totalLight = mix(totalLight, ornamentColor, ornament * 0.20);
+
+                // Gentle ambient shading, without bringing back the dark wall texture.
+                totalLight *= mix(0.96, 1.0, smoothstep(0.1, 0.12, v_pos.y));
             }
 
             float alpha = .98 + smoothstep(150., 0., dist) - v_normal.y;
