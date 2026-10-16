@@ -1,6 +1,7 @@
 'use strict';
 
-var useReflexion = true;
+// Disable the inverted mirrored pass while keeping the gallery view upright.
+var useReflexion = false;
 var showStats = false;
 
 // Handle different screen ratios
