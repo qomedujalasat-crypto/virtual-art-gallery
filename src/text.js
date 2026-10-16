@@ -54,46 +54,21 @@ function createMultilineText(ctx, textToWrite, maxWidth, text) {
 }
 
 module.exports = {
-    init(texture, textToWrite, paintingWidth=maxWidth, style={}) {
-        const canvas = document.createElement('canvas');
-        canvas.width = maxWidth;
-        canvas.height = style.canvasHeight || maxWidth;
-        const ctx = canvas.getContext('2d');
-        ctx.mozImageSmoothingEnabled = true;
-        ctx.webkitImageSmoothingEnabled = true;
-        const fontSize = style.fontSize || textHeight;
-        const fontFamily = style.fontFamily || 'Tahoma, Arial, sans-serif';
-        const font = fontSize + 'px ' + fontFamily;
-        const lineMaxWidth = Math.min(paintingWidth * maxWidth, maxWidth - 40);
+    init(texture, textToWrite, paintingWidth=maxWidth) {
+        var text = [];
+        createMultilineText(ctx, textToWrite, Math.min(paintingWidth*maxWidth, maxWidth), text);
 
-        function render() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = font;
-            ctx.direction = 'rtl';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = style.fillStyle || '#aaa';
-            const lines = [];
-            createMultilineText(ctx, textToWrite, lineMaxWidth, lines);
-            const lineHeight = fontSize * (style.lineSpacing || 1.35);
-            lines.forEach((line, i) => {
-                const y = canvas.height / 2 + (i - (lines.length - 1) / 2) * lineHeight;
-                ctx.fillText(line, canvas.width / 2, y, lineMaxWidth);
-            });
-            texture({
-                data: canvas,
-                min: 'mipmap',
-                mipmap: 'nice',
-                flipY: true
-            });
+        ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        for (var i = 0; i < text.length; i++) {
+            ctx.fillText(text[i], 0, textCanvas.height - (Math.max(text.length, 3) - i) * textHeight);
         }
 
-        ctx.font = font;
-        render();
-        if (style.fontFamily && document.fonts && document.fonts.load) {
-            document.fonts.load(font).then(render).catch(() => {});
-        }
-        return texture;
+        return texture({
+            data: textCanvas,
+            min: 'mipmap',
+            mipmap: 'nice',
+            flipY: true
+        });
     },
     draw(regl) {
         return regl({
