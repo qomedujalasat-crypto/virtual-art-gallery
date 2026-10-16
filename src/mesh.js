@@ -30,17 +30,17 @@ module.exports = (regl, data, useReflexion) => {
             if (v_normal.y < -0.5) {
                 totalLight = vec3(0.97, 0.97, 0.96);
             } else if (v_normal.y > 0.5) {
-                // Preserve the light marble floor and its restrained veins.
-                vec3 stone = vec3(0.92, 0.90, 0.86);
+                // Keep the marble floor muted so the artwork, not the room, draws attention.
+                vec3 stone = vec3(0.76, 0.73, 0.68);
                 vec3 textureColor = texture2D(floorTexture, v_pos.xz / 8.0).rgb;
                 totalLight = mix(stone, textureColor, 0.06);
                 float pattern = sin((v_pos.x + v_pos.z * 0.65) * 2.4
                     + sin(v_pos.x * 0.7 + v_pos.z * 0.3) * 2.0);
                 float vein = pow(1.0 - abs(pattern), 18.0);
-                totalLight = mix(totalLight, vec3(0.68, 0.66, 0.62), vein * 0.14);
+                totalLight = mix(totalLight, vec3(0.55, 0.52, 0.47), vein * 0.12);
             } else {
-                // Warm ivory plaster with a quiet Persian-inspired geometric ornament.
-                totalLight = vec3(0.88, 0.82, 0.72);
+                // Deep warm taupe plaster with a restrained Persian-inspired geometric ornament.
+                totalLight = vec3(0.49, 0.42, 0.35);
 
                 // Repeating diamond lattice and small rosette-like crossings.
                 // The muted sand-gold lines are intentionally low contrast.
@@ -54,8 +54,8 @@ module.exports = (regl, data, useReflexion) => {
                 float ornament = max(diamond, crossing * 0.20);
                 ornament = max(ornament, centerX * 0.12);
 
-                vec3 ornamentColor = vec3(0.69, 0.57, 0.42);
-                totalLight = mix(totalLight, ornamentColor, ornament * 0.20);
+                vec3 ornamentColor = vec3(0.68, 0.52, 0.34);
+                totalLight = mix(totalLight, ornamentColor, ornament * 0.22);
 
                 // Gentle ambient shading, without bringing back the dark wall texture.
                 totalLight *= mix(0.96, 1.0, smoothstep(0.1, 0.12, v_pos.y));
