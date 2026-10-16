@@ -1,7 +1,7 @@
 'use strict';
 
-const mapSize = 4; // Log2 of the grid size; one open 128 x 128 gallery hall
-const cellSize = 8; // Size of the rooms
+const mapSize = 3; // Log2 of the grid size; compact open gallery sized for about 50 works
+const cellSize = 14; // Wall spacing; 112 x 112 hall with about 56 perimeter display positions
 const mapHeight = 7; // Height of the walls
 const wallThickness = 0.25; // Wall thickness
 const wallRemoval = 0.5; // Random wall removal proportion
