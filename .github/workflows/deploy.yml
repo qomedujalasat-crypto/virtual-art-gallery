@@ -1,16 +1,16 @@
-name: Build gallery test preview
+name: Build legacy gallery test preview
 
 on:
   push:
     branches:
-      - gallery-expansion-test
+      - merge-latest-gallery-test
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: gallery-test-build
+  group: legacy-gallery-test-build
   cancel-in-progress: true
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
       - name: Build gallery
         run: npm run build
 
-      - name: Prepare website
+      - name: Prepare preview files
         run: |
           mkdir -p public
           cp build.html public/index.html
@@ -40,6 +40,6 @@ jobs:
       - name: Upload preview files
         uses: actions/upload-artifact@v4
         with:
-          name: gallery-test-preview
+          name: legacy-gallery-test-preview
           path: public
           retention-days: 7
