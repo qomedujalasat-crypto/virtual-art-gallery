@@ -1,10 +1,11 @@
 'use strict';
 
-const mapSize = 3; // Compact maze-like gallery with multiple rooms
-const cellSize = 8; // Room spacing; total gallery footprint is 64 x 64
-const mapHeight = 7; // Height of the walls
-const wallThickness = 0.25; // Wall thickness
-const wallRemoval = 0.5; // Random wall removal proportion
+const mapSize = 4; // Expanded U-shaped gallery; 144 x 144 footprint with about 96 artwork wall placements.
+const cellSize = 9; // Larger gallery grid while preserving artwork spacing and wall layout.
+const mapHeight = 7;
+const wallThickness = 0.25;
+const wallRemoval = 0.5;
+
 
 const transform = (a, r, tx, ty, o = 1) => a.map((v) => [(o * v[r] + tx) / 2, (o * v[1 - r] + ty) / 2]);
 
@@ -236,7 +237,13 @@ function genGrid(segments, n, r) {
 
 module.exports = function (n = mapSize, r = cellSize, w = wallThickness, m = wallRemoval, h = mapHeight) {
 	let s = r * Math.pow(2, n);
-	let border = genBorder(n + 1, w, m).map((v) => [v[0] * s, v[1] * s]);
+	// Use a deliberate U-shaped orthogonal outline. Every corner is 90 degrees,
+	// and each wall run is at least 16 world units (about two painting spaces).
+	// Coordinates are normalized to the square footprint and scaled below.
+	let border = [
+		[0, 0], [1, 0], [1, 1], [2 / 3, 1],
+		[2 / 3, 1 / 3], [1 / 3, 1 / 3], [1 / 3, 1], [0, 1], [0, 0]
+	].map(([x, y]) => [x * s, y * s]);
 	console.time('gen mesh');
 	let segments = border.slice(0, -1).map((p, i) => [p, border[i + 1]]);
 	let normal = segments

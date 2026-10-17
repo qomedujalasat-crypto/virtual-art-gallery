@@ -34,7 +34,7 @@ regl = require('regl')({
 		//'oes_texture_float',
 		'EXT_texture_filter_anisotropic'
 	],
-	attributes: { alpha : false }
+	attributes: { alpha : true }
 });
 
 map = require('./map')();
@@ -63,7 +63,8 @@ const reflexion = regl({
 	},
 	uniforms: {
 		yScale: -1.0
-	}
+	},
+	depth: { enable: true, mask: false }
 });
 
 regl.frame(({
