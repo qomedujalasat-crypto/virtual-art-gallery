@@ -1,0 +1,41 @@
+name: Copy latest gallery into legacy branch
+
+on:
+  push:
+    branches:
+      - merge-latest-gallery-test
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: legacy-gallery-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout legacy test branch
+        uses: actions/checkout@v4
+        with:
+          ref: merge-latest-gallery-test
+          fetch-depth: 1
+
+      - name: Clone latest gallery test version
+        run: |
+          git clone --depth 1 --branch gallery-expansion-test https://github.com/qomedujalasat-crypto/virtual-art-gallery-next.git /tmp/latest-gallery
+
+      - name: Replace branch contents with latest gallery
+        run: |
+          rsync -a --delete --exclude='.git/' /tmp/latest-gallery/ ./
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+          else
+            git commit -m "Copy latest gallery test version into legacy branch"
+            git push origin HEAD:merge-latest-gallery-test
+          fi
