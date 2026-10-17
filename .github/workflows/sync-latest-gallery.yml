@@ -23,6 +23,14 @@ jobs:
           ref: merge-latest-gallery-test
           fetch-depth: 1
 
+      - name: Cancel any legacy Pages deployment from this test branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run list --repo "$GITHUB_REPOSITORY" --branch merge-latest-gallery-test --status in_progress --json databaseId,workflowName --jq '.[] | select(.workflowName == "Build and publish gallery") | .databaseId' | while read run_id; do
+            [ -n "$run_id" ] && gh run cancel "$run_id" --repo "$GITHUB_REPOSITORY" || true
+          done
+
       - name: Clone latest gallery test version
         run: |
           git clone --depth 1 --branch gallery-expansion-test https://github.com/qomedujalasat-crypto/virtual-art-gallery-next.git /tmp/latest-gallery
